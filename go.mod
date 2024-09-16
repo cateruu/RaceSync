@@ -1,4 +1,4 @@
-module changeme
+module github.com/cateruu/iRacing-utility
 
 go 1.22.4
 
