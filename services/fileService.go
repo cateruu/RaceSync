@@ -1,6 +1,7 @@
 package fileService
 
 import (
+	"RaceSync/pkg/icon"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -56,15 +57,18 @@ func (s *FileService) saveAppToFile(file string) error {
 	}
 
 	if file == "" {
-		return fmt.Errorf("no file path specified: %v", err)
+		return fmt.Errorf("no file path specified")
 	}
 
 	fileName := filepath.Base(file)
 	appName := strings.TrimSuffix(fileName, filepath.Ext(fileName))
+	iconPath := filepath.Join(dirPath, appName+".png")
+	fmt.Println(iconPath)
 
 	newApp := map[string]interface{}{
 		"path": file,
 		"name": appName,
+		"icon": iconPath,
 	}
 
 	savedData := make(map[string]interface{})
@@ -82,6 +86,21 @@ func (s *FileService) saveAppToFile(file string) error {
 	}
 
 	savedData[appName] = newApp
+
+	iconBytes, err := icon.GetIconFromFile(file, true)
+	if err != nil {
+		return fmt.Errorf("unable to extract icon from the file")
+	}
+
+	image, err := icon.DecodeBytesToImage(iconBytes)
+	if err != nil {
+		return fmt.Errorf("unable to convert an image")
+	}
+
+	err = icon.SaveAsPNG(iconPath, image)
+	if err != nil {
+		return fmt.Errorf("unable to save a file")
+	}
 
 	jsonData, err := json.Marshal(savedData)
 	if err != nil {

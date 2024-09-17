@@ -18,9 +18,11 @@ func main() {
 	fileService := fileService.New()
 
 	err := wails.Run(&options.App{
-		Title:  "RaceSync",
-		Width:  800,
-		Height: 600,
+		Title:     "RaceSync",
+		Width:     800,
+		Height:    600,
+		MinWidth:  360,
+		MinHeight: 500,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
