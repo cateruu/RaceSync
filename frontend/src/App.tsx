@@ -6,13 +6,19 @@ import Spinner from './loaders/Spinner';
 function App() {
   const [file, setFile] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const openFile = async () => {
     setIsLoading(true);
-    const file = await OpenFile();
-    setFile(file);
 
-    setIsLoading(false);
+    try {
+      const file = await OpenFile();
+      setFile(file);
+    } catch (error) {
+      setError(error as string);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -36,6 +42,7 @@ function App() {
             )}
           </button>
           {file}
+          {error && <p>{error}</p>}
         </div>
       </div>
     </main>
