@@ -1,6 +1,20 @@
 import PlusCirle from './assets/PlusCircle.png';
+import { OpenFile } from '../wailsjs/go/fileService/FileService';
+import { useState } from 'react';
+import Spinner from './loaders/Spinner';
 
 function App() {
+  const [file, setFile] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const openFile = async () => {
+    setIsLoading(true);
+    const file = await OpenFile();
+    setFile(file);
+
+    setIsLoading(false);
+  };
+
   return (
     <main className='h-screen w-screen text-white flex flex-col items-center gap-4 font-azeretMono'>
       <h1 className='font-fasterOne text-6xl'>RaceSync</h1>
@@ -11,10 +25,17 @@ function App() {
           </button>
           <button
             className='w-full h-11 text-sm font-medium rounded-xl bg-blue-950 border border-blue-800 flex justify-center items-center gap-[10px]'
-            // onClick={openFileImport}
+            onClick={openFile}
           >
-            <img src={PlusCirle} alt='plus circle' /> New app
+            {isLoading ? (
+              <Spinner />
+            ) : (
+              <>
+                <img src={PlusCirle} alt='plus circle' /> New app
+              </>
+            )}
           </button>
+          {file}
         </div>
       </div>
     </main>

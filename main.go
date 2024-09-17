@@ -1,6 +1,8 @@
 package main
 
 import (
+	fileService "RaceSync/services"
+	"context"
 	"embed"
 
 	"github.com/wailsapp/wails/v2"
@@ -12,10 +14,9 @@ import (
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
 	app := NewApp()
+	fileService := fileService.New()
 
-	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "RaceSync",
 		Width:  800,
@@ -24,9 +25,13 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 2, G: 6, B: 23, A: 1},
-		OnStartup:        app.startup,
+		OnDomReady: func(ctx context.Context) {
+			app.startup(ctx)
+			fileService.Startup(ctx)
+		},
 		Bind: []interface{}{
 			app,
+			fileService,
 		},
 	})
 
