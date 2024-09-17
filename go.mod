@@ -1,4 +1,4 @@
-module github.com/cateruu/iRacing-utility
+module github.com/cateruu/RaceSync
 
 go 1.22.4
 

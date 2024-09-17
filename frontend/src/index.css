@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: 'Azeret Mono';
+  src: url('/AzeretMono.ttf');
+}
+
+@font-face {
+  font-family: 'Faster One';
+  src: url('/FasterOne.ttf');
+}

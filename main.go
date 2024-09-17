@@ -5,8 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/cateruu/iRacing-utility/internal/fileservice"
-	"github.com/cateruu/iRacing-utility/internal/overlayservice"
+	fileservice "github.com/cateruu/RaceSync/internal/fileService"
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/plugins/experimental/single_instance"
 )
@@ -20,7 +19,6 @@ func main() {
 		Description: "iRacing utility tool",
 		Services: []application.Service{
 			application.NewService(fileservice.New()),
-			application.NewService(overlayservice.New()),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
@@ -34,7 +32,7 @@ func main() {
 
 	app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
 		Title:            "iRacing Utility",
-		BackgroundColour: application.NewRGB(0, 0, 0),
+		BackgroundColour: application.NewRGB(2, 6, 23),
 		URL:              "/",
 		MinWidth:         800,
 		MinHeight:        600,
