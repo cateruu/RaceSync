@@ -86,7 +86,7 @@ function App() {
           },
         }}
       />
-      <main className='h-screen w-screen text-white flex flex-col items-center gap-4 font-azeretMono overflow-y-auto'>
+      <main className='h-screen w-screen text-white flex flex-col items-center gap-4 font-azeretMono overflow-y-auto relative'>
         <h1 className='font-fasterOne text-6xl'>RaceSync</h1>
         <div className='w-[340px]'>
           <div className='flex flex-col gap-1 w-full'>

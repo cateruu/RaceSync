@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"image/color"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -162,7 +163,7 @@ func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
 	}
 
 	if file == "" {
-		return nil, fmt.Errorf("file you selected is not a real .exe file, find real .exe file to add an app")
+		return nil, fmt.Errorf("file you selected is not a real .exe file, find real .exe file then add it")
 	}
 
 	fileName := filepath.Base(file)
@@ -193,17 +194,33 @@ func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
 
 	iconBytes, err := icon.GetIconFromFile(file, true)
 	if err != nil {
-		return nil, fmt.Errorf("unable to extract icon from the file")
-	}
+		width := 200
+		height := 200
 
-	image, err := icon.DecodeBytesToImage(iconBytes)
-	if err != nil {
-		return nil, fmt.Errorf("unable to convert an image")
-	}
+		scene := icon.NewScene(width, height)
+		scene.PixelDraw(func(x, y int) color.RGBA {
+			return color.RGBA{
+				uint8(x * 255 / width),
+				uint8(y * 255 / height),
+				100,
+				255,
+			}
+		})
 
-	err = icon.SaveAsPNG(iconPath, image)
-	if err != nil {
-		return nil, fmt.Errorf("unable to save a file")
+		err = icon.SaveAsPNG(iconPath, scene.Image)
+		if err != nil {
+			return nil, fmt.Errorf("unable to save a file")
+		}
+	} else {
+		image, err := icon.DecodeBytesToImage(iconBytes)
+		if err != nil {
+			return nil, fmt.Errorf("unable to convert an image")
+		}
+
+		err = icon.SaveAsPNG(iconPath, image)
+		if err != nil {
+			return nil, fmt.Errorf("unable to save a file")
+		}
 	}
 
 	jsonData, err := json.Marshal(savedData)

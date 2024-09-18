@@ -11,12 +11,43 @@ import (
 	"bytes"
 	"fmt"
 	"image"
+	"image/color"
 	"image/png"
+	"math/rand"
 	"os"
+	"time"
 	"unsafe"
 
 	"github.com/mat/besticon/ico"
 )
+
+type Scene struct {
+	Width  int
+	Height int
+	Image  *image.RGBA
+}
+
+func NewScene(width, height int) *Scene {
+	return &Scene{
+		Width:  width,
+		Height: height,
+		Image:  image.NewRGBA(image.Rect(0, 0, width, height)),
+	}
+}
+
+func randomColor() color.RGBA {
+	rand := rand.New(rand.NewSource(time.Now().Unix()))
+
+	return color.RGBA{uint8(rand.Intn(255)), uint8(rand.Intn(255)), uint8(rand.Intn(255)), 255}
+}
+
+func (s *Scene) PixelDraw(colorFn func(int, int) color.RGBA) {
+	for i := 0; i < s.Width; i++ {
+		for j := 0; j < s.Height; j++ {
+			s.Image.Set(i, j, colorFn(i, j))
+		}
+	}
+}
 
 func GetIconFromFile(path string, allowEmbeddedPNGs bool) ([]byte, error) {
 	cPath := C.CString(path)

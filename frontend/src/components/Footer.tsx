@@ -3,7 +3,7 @@ import { BrowserOpenURL } from '../../wailsjs/runtime';
 
 const Footer = () => {
   return (
-    <footer className='mt-3 text-gray-600 text-xs text-center'>
+    <footer className='text-gray-600 text-xs text-center absolute bottom-[10px] left-1/2 -translate-x-1/2 text-nowrap whitespace-nowrap'>
       Made by{' '}
       <span
         onClick={() => BrowserOpenURL('https://github.com/cateruu')}
