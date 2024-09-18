@@ -6,6 +6,10 @@ export function GetAppsData() {
   return window['go']['fileService']['FileService']['GetAppsData']();
 }
 
+export function LaunchApps() {
+  return window['go']['fileService']['FileService']['LaunchApps']();
+}
+
 export function LoadImage(arg1) {
   return window['go']['fileService']['FileService']['LoadImage'](arg1);
 }

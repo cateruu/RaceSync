@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -121,7 +122,37 @@ func (s *FileService) RemoveApp(name string) (*map[string]Data, error) {
 		return nil, fmt.Errorf("unable to save to data file")
 	}
 
+	//remove png file
+	err = os.Remove(dirPath + "\\" + name + ".png")
+	if err != nil {
+		return nil, fmt.Errorf("unable to remove app icon")
+	}
+
 	return &jsonData, nil
+}
+
+func (s *FileService) LaunchApps() error {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("unable to read data file")
+	}
+
+	var savedData map[string]Data
+
+	err = json.Unmarshal(data, &savedData)
+	if err != nil {
+		return fmt.Errorf("unable to unmarshal saved data")
+	}
+
+	for _, v := range savedData {
+		cmd := exec.Command(v.Path)
+		err := cmd.Start()
+		if err != nil {
+			return fmt.Errorf("error during app lanuch: %v", v.Name)
+		}
+	}
+
+	return nil
 }
 
 func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
@@ -131,7 +162,7 @@ func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
 	}
 
 	if file == "" {
-		return nil, fmt.Errorf("no file path specified")
+		return nil, fmt.Errorf("file you selected is not a real .exe file, find real .exe file to add an app")
 	}
 
 	fileName := filepath.Base(file)

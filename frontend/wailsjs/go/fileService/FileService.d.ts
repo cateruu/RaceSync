@@ -4,6 +4,8 @@ import {context} from '../models';
 
 export function GetAppsData():Promise<any>;
 
+export function LaunchApps():Promise<void>;
+
 export function LoadImage(arg1:string):Promise<string>;
 
 export function OpenFile():Promise<any>;
