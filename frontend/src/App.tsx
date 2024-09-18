@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import Spinner from './loaders/Spinner';
 import SavedApp, { AppData } from './components/SavedApp';
 import toast, { Toaster } from 'react-hot-toast';
+import Footer from './components/Footer';
 
 interface Data {
   [key: string]: AppData;
@@ -85,7 +86,7 @@ function App() {
           },
         }}
       />
-      <main className='h-screen w-screen text-white flex flex-col items-center gap-4 font-azeretMono'>
+      <main className='h-screen w-screen text-white flex flex-col items-center gap-4 font-azeretMono overflow-y-auto'>
         <h1 className='font-fasterOne text-6xl'>RaceSync</h1>
         <div className='w-[340px]'>
           <div className='flex flex-col gap-1 w-full'>
@@ -114,13 +115,14 @@ function App() {
             {data && Object.entries(data).length > 0 && (
               <h2 className='mt-2 mb-3'>Added apps</h2>
             )}
-            <section className='flex flex-col gap-2'>
+            <section className='flex flex-col gap-2 max-h-[305px] overflow-hidden overflow-y-auto scroll-'>
               {data &&
                 Object.entries(data).map(([_, data]) => (
                   <SavedApp data={data} onRemove={removeApp} />
                 ))}
             </section>
           </div>
+          <Footer />
         </div>
       </main>
     </>

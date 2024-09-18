@@ -11,3 +11,15 @@
   font-family: 'Faster One';
   src: url('/FasterOne.ttf');
 }
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #64748b;
+}

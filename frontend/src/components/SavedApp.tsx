@@ -38,7 +38,7 @@ const SavedApp = ({ data, onRemove }: Props) => {
           1
         )}`}</p>
         <p
-          className='text-slate-600 text-[10px] w-[270px] overflow-hidden whitespace-nowrap text-nowrap text-ellipsis'
+          className='text-slate-600 text-[10px] w-[260px] overflow-hidden whitespace-nowrap text-nowrap text-ellipsis'
           title={data.path.replaceAll('\\', '/')}
         >
           {data.path.replaceAll('\\', '/')}
