@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { LoadImage } from '../../wailsjs/go/fileService/FileService';
 import TrashIcon from '../assets/Trash.png';
+import toast from 'react-hot-toast';
 
 export interface AppData {
   name: string;
@@ -22,7 +23,7 @@ const SavedApp = ({ data, onRemove }: Props) => {
         const imageSrc = await LoadImage(data.icon);
         setImageSrc(imageSrc);
       } catch (error) {
-        console.error(error);
+        toast.error(error as string);
       }
     })();
   }, [data.icon]);
