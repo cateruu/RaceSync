@@ -3,6 +3,7 @@ package fileService
 import (
 	"RaceSync/pkg/icon"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,6 +12,17 @@ import (
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
+
+var (
+	dirPath  = "C:\\Users\\pawel\\Documents\\RaceSync"
+	filePath = "C:\\Users\\pawel\\Documents\\RaceSync\\data.json"
+)
+
+type Data struct {
+	Name string `json:"name"`
+	Path string `json:"path"`
+	Icon string `json:"icon"`
+}
 
 type FileService struct {
 	ctx context.Context
@@ -24,7 +36,7 @@ func (s *FileService) Startup(ctx context.Context) {
 	s.ctx = ctx
 }
 
-func (s *FileService) OpenFile() (string, error) {
+func (s *FileService) OpenFile() (*map[string]Data, error) {
 	file, err := runtime.OpenFileDialog(s.ctx, runtime.OpenDialogOptions{
 		Title: "Select app",
 		Filters: []runtime.FileFilter{
@@ -35,53 +47,80 @@ func (s *FileService) OpenFile() (string, error) {
 		},
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	err = s.saveAppToFile(file)
+	data, err := s.saveAppToFile(file)
 	if err != nil {
 		fmt.Println(err.Error())
-		return "", err
+		return nil, err
 	}
 
-	return file, nil
+	return data, nil
 }
 
-func (s *FileService) saveAppToFile(file string) error {
-	dirPath := "C:\\Users\\pawel\\Documents\\RaceSync"
-	filePath := filepath.Join(dirPath, "data.json")
+func (s *FileService) GetAppsData() (*map[string]Data, error) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read data file")
+	}
 
+	dataJson := make(map[string]Data)
+	err = json.Unmarshal(data, &dataJson)
+	if err != nil {
+		return nil, fmt.Errorf("unable to unmarshal data file")
+	}
+
+	return &dataJson, nil
+}
+
+func (s *FileService) LoadImage(path string) (string, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("unable to read image")
+	}
+
+	base64Encoded := base64.StdEncoding.EncodeToString(data)
+	ext := filepath.Ext(path)
+	if ext == "" {
+		return "", fmt.Errorf("unable to extract extension from the file")
+	}
+
+	dataUrl := fmt.Sprintf("data:image/%s;base64,%s", ext[1:], base64Encoded)
+	return dataUrl, nil
+}
+
+func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
 	err := os.MkdirAll(dirPath, 0755)
 	if err != nil {
-		return fmt.Errorf("failed to create directory: %v", err)
+		return nil, fmt.Errorf("failed to create directory: %v", err)
 	}
 
 	if file == "" {
-		return fmt.Errorf("no file path specified")
+		return nil, fmt.Errorf("no file path specified")
 	}
 
 	fileName := filepath.Base(file)
 	appName := strings.TrimSuffix(fileName, filepath.Ext(fileName))
 	iconPath := filepath.Join(dirPath, appName+".png")
-	fmt.Println(iconPath)
 
-	newApp := map[string]interface{}{
-		"path": file,
-		"name": appName,
-		"icon": iconPath,
+	newApp := Data{
+		Path: file,
+		Name: appName,
+		Icon: iconPath,
 	}
 
-	savedData := make(map[string]interface{})
+	savedData := make(map[string]Data)
 
 	if _, err := os.Stat(filePath); err == nil {
 		content, err := os.ReadFile(filePath)
 		if err != nil {
-			return fmt.Errorf("failed to read saved file: %v", err)
+			return nil, fmt.Errorf("failed to read saved file: %v", err)
 		}
 
 		err = json.Unmarshal(content, &savedData)
 		if err != nil {
-			return fmt.Errorf("failed to unmarshal saved data: %v", err)
+			return nil, fmt.Errorf("failed to unmarshal saved data: %v", err)
 		}
 	}
 
@@ -89,30 +128,30 @@ func (s *FileService) saveAppToFile(file string) error {
 
 	iconBytes, err := icon.GetIconFromFile(file, true)
 	if err != nil {
-		return fmt.Errorf("unable to extract icon from the file")
+		return nil, fmt.Errorf("unable to extract icon from the file")
 	}
 
 	image, err := icon.DecodeBytesToImage(iconBytes)
 	if err != nil {
-		return fmt.Errorf("unable to convert an image")
+		return nil, fmt.Errorf("unable to convert an image")
 	}
 
 	err = icon.SaveAsPNG(iconPath, image)
 	if err != nil {
-		return fmt.Errorf("unable to save a file")
+		return nil, fmt.Errorf("unable to save a file")
 	}
 
 	jsonData, err := json.Marshal(savedData)
 	if err != nil {
-		return fmt.Errorf("failed to marshal data to JSON: %v", err)
+		return nil, fmt.Errorf("failed to marshal data to JSON: %v", err)
 	}
 
 	saveFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		return fmt.Errorf("failed to open data file: %v", err)
+		return nil, fmt.Errorf("failed to open data file: %v", err)
 	}
 	defer saveFile.Close()
 
 	_, err = saveFile.Write(jsonData)
-	return err
+	return &savedData, err
 }

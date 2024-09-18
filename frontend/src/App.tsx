@@ -1,25 +1,43 @@
 import PlusCirle from './assets/PlusCircle.png';
-import { OpenFile } from '../wailsjs/go/fileService/FileService';
-import { useState } from 'react';
+import { OpenFile, GetAppsData } from '../wailsjs/go/fileService/FileService';
+import { useEffect, useState } from 'react';
 import Spinner from './loaders/Spinner';
+import SavedApp, { AppData } from './components/SavedApp';
+
+interface Data {
+  [key: string]: AppData;
+}
 
 function App() {
-  const [file, setFile] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [data, setData] = useState<Data | null>(null);
 
   const openFile = async () => {
     setIsLoading(true);
 
     try {
-      const file = await OpenFile();
-      setFile(file);
+      const data = await OpenFile();
+      setData(data);
     } catch (error) {
       setError(error as string);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const data = await GetAppsData();
+        setData(data);
+      } catch (error) {
+        setError(error as string);
+      }
+    };
+
+    getData();
+  }, []);
 
   return (
     <main className='h-screen w-screen text-white flex flex-col items-center gap-4 font-azeretMono'>
@@ -41,8 +59,10 @@ function App() {
               </>
             )}
           </button>
-          {file}
           {error && <p>{error}</p>}
+          <h2 className='mt-4 mb-5'>Added apps</h2>
+          {data &&
+            Object.entries(data).map(([_, data]) => <SavedApp data={data} />)}
         </div>
       </div>
     </main>
