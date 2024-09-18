@@ -14,6 +14,10 @@ export function OpenFile() {
   return window['go']['fileService']['FileService']['OpenFile']();
 }
 
+export function RemoveApp(arg1) {
+  return window['go']['fileService']['FileService']['RemoveApp'](arg1);
+}
+
 export function Startup(arg1) {
   return window['go']['fileService']['FileService']['Startup'](arg1);
 }

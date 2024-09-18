@@ -8,4 +8,6 @@ export function LoadImage(arg1:string):Promise<string>;
 
 export function OpenFile():Promise<any>;
 
+export function RemoveApp(arg1:string):Promise<any>;
+
 export function Startup(arg1:context.Context):Promise<void>;

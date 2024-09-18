@@ -90,6 +90,40 @@ func (s *FileService) LoadImage(path string) (string, error) {
 	return dataUrl, nil
 }
 
+func (s *FileService) RemoveApp(name string) (*map[string]Data, error) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read data file")
+	}
+
+	var jsonData map[string]Data
+
+	err = json.Unmarshal(data, &jsonData)
+	if err != nil {
+		return nil, fmt.Errorf("unable to unmarshal data")
+	}
+
+	delete(jsonData, name)
+
+	json, err := json.Marshal(jsonData)
+	if err != nil {
+		return nil, fmt.Errorf("unable to marshal data")
+	}
+
+	saveFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open data file: %v", err)
+	}
+	defer saveFile.Close()
+
+	_, err = saveFile.Write(json)
+	if err != nil {
+		return nil, fmt.Errorf("unable to save to data file")
+	}
+
+	return &jsonData, nil
+}
+
 func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
 	err := os.MkdirAll(dirPath, 0755)
 	if err != nil {

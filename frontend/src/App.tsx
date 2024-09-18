@@ -1,5 +1,9 @@
 import PlusCirle from './assets/PlusCircle.png';
-import { OpenFile, GetAppsData } from '../wailsjs/go/fileService/FileService';
+import {
+  OpenFile,
+  GetAppsData,
+  RemoveApp,
+} from '../wailsjs/go/fileService/FileService';
 import { useEffect, useState } from 'react';
 import Spinner from './loaders/Spinner';
 import SavedApp, { AppData } from './components/SavedApp';
@@ -23,6 +27,15 @@ function App() {
       setError(error as string);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const removeApp = async (name: string) => {
+    try {
+      const data = await RemoveApp(name);
+      setData(data);
+    } catch (error) {
+      setError(error as string);
     }
   };
 
@@ -60,9 +73,13 @@ function App() {
             )}
           </button>
           {error && <p>{error}</p>}
-          <h2 className='mt-4 mb-5'>Added apps</h2>
-          {data &&
-            Object.entries(data).map(([_, data]) => <SavedApp data={data} />)}
+          <h2 className='mt-2 mb-3'>Added apps</h2>
+          <section className='flex flex-col gap-2'>
+            {data &&
+              Object.entries(data).map(([_, data]) => (
+                <SavedApp data={data} onRemove={removeApp} />
+              ))}
+          </section>
         </div>
       </div>
     </main>
