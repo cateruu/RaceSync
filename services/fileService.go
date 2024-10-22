@@ -15,11 +15,6 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-var (
-	dirPath  = "C:\\Users\\pawel\\Documents\\RaceSync"
-	filePath = "C:\\Users\\pawel\\Documents\\RaceSync\\data.json"
-)
-
 type Data struct {
 	Name string `json:"name"`
 	Path string `json:"path"`
@@ -27,11 +22,21 @@ type Data struct {
 }
 
 type FileService struct {
-	ctx context.Context
+	ctx      context.Context
+	dirPath  string
+	filePath string
 }
 
 func New() *FileService {
-	return &FileService{}
+	user, err := os.UserHomeDir()
+	if err != nil {
+		return nil
+	}
+
+	return &FileService{
+		dirPath:  fmt.Sprintf("%s\\Documents\\RaceSync", user),
+		filePath: fmt.Sprintf("%s\\Documents\\RaceSync\\data.json", user),
+	}
 }
 
 func (s *FileService) Startup(ctx context.Context) {
@@ -62,7 +67,7 @@ func (s *FileService) OpenFile() (*map[string]Data, error) {
 }
 
 func (s *FileService) GetAppsData() (*map[string]Data, error) {
-	data, err := os.ReadFile(filePath)
+	data, err := os.ReadFile(s.filePath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read data file")
 	}
@@ -93,7 +98,7 @@ func (s *FileService) LoadImage(path string) (string, error) {
 }
 
 func (s *FileService) RemoveApp(name string) (*map[string]Data, error) {
-	data, err := os.ReadFile(filePath)
+	data, err := os.ReadFile(s.filePath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read data file")
 	}
@@ -112,7 +117,7 @@ func (s *FileService) RemoveApp(name string) (*map[string]Data, error) {
 		return nil, fmt.Errorf("unable to marshal data")
 	}
 
-	saveFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	saveFile, err := os.OpenFile(s.filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open data file: %v", err)
 	}
@@ -124,7 +129,7 @@ func (s *FileService) RemoveApp(name string) (*map[string]Data, error) {
 	}
 
 	//remove png file
-	err = os.Remove(dirPath + "\\" + name + ".png")
+	err = os.Remove(s.dirPath + "\\" + name + ".png")
 	if err != nil {
 		return nil, fmt.Errorf("unable to remove app icon")
 	}
@@ -133,7 +138,7 @@ func (s *FileService) RemoveApp(name string) (*map[string]Data, error) {
 }
 
 func (s *FileService) LaunchApps() error {
-	data, err := os.ReadFile(filePath)
+	data, err := os.ReadFile(s.filePath)
 	if err != nil {
 		return fmt.Errorf("unable to read data file")
 	}
@@ -157,7 +162,7 @@ func (s *FileService) LaunchApps() error {
 }
 
 func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
-	err := os.MkdirAll(dirPath, 0755)
+	err := os.MkdirAll(s.dirPath, 0755)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create directory: %v", err)
 	}
@@ -168,7 +173,7 @@ func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
 
 	fileName := filepath.Base(file)
 	appName := strings.TrimSuffix(fileName, filepath.Ext(fileName))
-	iconPath := filepath.Join(dirPath, appName+".png")
+	iconPath := filepath.Join(s.dirPath, appName+".png")
 
 	newApp := Data{
 		Path: file,
@@ -178,8 +183,8 @@ func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
 
 	savedData := make(map[string]Data)
 
-	if _, err := os.Stat(filePath); err == nil {
-		content, err := os.ReadFile(filePath)
+	if _, err := os.Stat(s.filePath); err == nil {
+		content, err := os.ReadFile(s.filePath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read saved file: %v", err)
 		}
@@ -228,7 +233,7 @@ func (s *FileService) saveAppToFile(file string) (*map[string]Data, error) {
 		return nil, fmt.Errorf("failed to marshal data to JSON: %v", err)
 	}
 
-	saveFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	saveFile, err := os.OpenFile(s.filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open data file: %v", err)
 	}
